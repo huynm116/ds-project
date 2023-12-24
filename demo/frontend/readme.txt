@@ -1,3 +1,3 @@
 cd frontend 
-npm i
+npm install
 npm start
