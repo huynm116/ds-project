@@ -1,53 +1,42 @@
 import pandas as pd
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
 from fuzzywuzzy import fuzz
-import urllib.request
-from PIL import Image
 import matplotlib
 matplotlib.use('Agg')  # Set Matplotlib to use the Agg backend
-import matplotlib.pyplot as plt
 
 # Load data
-movies = pd.read_csv('../../cleaned_data/movies_small.csv', sep=',', index_col=False, dtype='unicode')
-selected_movies = movies
+movies = pd.read_csv('../../cleaned_data/movies_small.csv', usecols=['title', 'genres', 'overview'], sep=',', index_col=False, dtype='unicode')
 
 # Explore the Feature (genres)
-selected_movies[['title', 'genres', 'overview']].head(5)
+# movies[['title', 'genres', 'overview']].head(5)
 
 # Count the number of occurrences for each genre in the data set
 counts = dict()
 
-for i in selected_movies.index:
-    for g in selected_movies.loc[i, 'genres'].split(' '):
+for i in movies.index:
+    for g in movies.loc[i, 'genres'].split(' '):
         if g not in counts:
             counts[g] = 1
         else:
             counts[g] = counts[g] + 1
 
-# Tidy up genre counts and plot
-selected_movies.loc[:, 'genres'] = selected_movies['genres'].str.replace(',', ' ')
-plt.figure(figsize=(12, 6))
-plt.bar(list(counts.keys()), counts.values(), color='#A9A9A9')
-plt.xticks(rotation=45)
-plt.xlabel('Genres')
-plt.ylabel('Counts')
+movies['genres'] = movies['genres'].str.replace(',',' ')
 
 # Term Frequency and Inverse Document Frequency (tf-idf)
-selected_movies.loc[:, 'genres'] = selected_movies['genres'].str.replace('Sci-Fi', 'SciFi')
-selected_movies.loc[:, 'genres'] = selected_movies['genres'].str.replace('Film-Noir', 'FilmNoir')
-selected_movies.loc[:, 'genres'] = selected_movies['genres'].str.replace('Reality-TV', 'RealityTV')
-selected_movies.loc[:, 'genres'] = selected_movies['genres'].str.replace('Talk-Show', 'TalkShow')
+movies['genres'] = movies['genres'].str.replace('Sci-Fi','SciFi')
+movies['genres'] = movies['genres'].str.replace('Film-Noir','FilmNoir')
+movies['genres'] = movies['genres'].str.replace('Reality-TV','RealityTV')
+movies['genres'] = movies['genres'].str.replace('Talk-Show','TalkShow')
 
 # Combine 'overview' and 'genres' into a single column
-selected_movies.loc[:, 'overview_and_genres'] = selected_movies.loc[:, 'overview'] + ' ' + selected_movies.loc[:, 'genres']
+movies['content'] = movies['overview'] + ' ' + movies['genres'] + ' ' + movies['title']
 
 # Create a TF-IDF vectorizer
 tfidf_vector = TfidfVectorizer(stop_words='english')
 
 # Compute the TF-IDF matrix
-tfidf_matrix = tfidf_vector.fit_transform(selected_movies['overview_and_genres'])
+tfidf_matrix = tfidf_vector.fit_transform(movies['content'])
 
 # Create the cosine similarity matrix
 sim_matrix = linear_kernel(tfidf_matrix, tfidf_matrix)
@@ -60,7 +49,7 @@ def matching_score(a, b):
 
 # Function to return the most similar title to the words a user types
 def find_closest_title(title):
-    leven_scores = list(enumerate(selected_movies['title'].apply(matching_score, b=title)))
+    leven_scores = list(enumerate(movies['title'].apply(matching_score, b=title)))
     sorted_leven_scores = sorted(leven_scores, key=lambda x: x[1], reverse=True)
     closest_title = get_title_from_index(sorted_leven_scores[0][0])
     distance_score = sorted_leven_scores[0][1]
@@ -97,7 +86,7 @@ def contents_based_recommender(movie, num_of_recomm=10):
         movie_list = list(enumerate(sim_matrix[int(movie_index)]))
         similar_movies = list(filter(lambda x: x[0] != int(movie_index), sorted(movie_list, key=lambda x: x[1], reverse=True)))
 
-        for i, s in enumerate(similar_movies[:num_of_recomm]):
+        for _, s in enumerate(similar_movies[:num_of_recomm]):
             recommended_movies.append(get_title_from_index(s[0]))
 
     return recommended_movies, suggestion

@@ -26,6 +26,7 @@ def content_based_recommend_movies():
         )
 
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)})
 
 
@@ -41,6 +42,7 @@ def collaborative_filteringl_recommend_movies():
         return jsonify({"recommendations": recommended_movies})
 
     except Exception as e:
+        print(e)
         return jsonify({"error": str(e)})
 
 
