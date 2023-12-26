@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')  # Set Matplotlib to use the Agg backend
 
 # Load data
-movies = pd.read_csv('../../cleaned_data/movies_small.csv', usecols=['title', 'genres', 'overview'], sep=',', index_col=False, dtype='unicode')
+movies = pd.read_csv('../../cleaned_data/processed_movie_data.csv', usecols=['processed_title', 'genres', 'processed_overview'], sep=',', index_col=False, dtype='unicode')
 
 movies['genres'] = movies['genres'].str.replace(',',' ')
 
@@ -17,7 +17,8 @@ movies['genres'] = movies['genres'].str.replace('Reality-TV','RealityTV')
 movies['genres'] = movies['genres'].str.replace('Talk-Show','TalkShow')
 
 # Combine 'overview' and 'genres' into a single column
-movies['content'] = movies['overview'] + ' ' + movies['genres'] + ' ' + movies['title']
+movies['content'] = movies['processed_overview'] + ' ' + movies['genres'] + ' ' + movies['processed_title']
+movies['content'] = movies['content'].fillna('')
 
 # Create a TF-IDF vectorizer
 tfidf_vector = TfidfVectorizer(stop_words='english')
