@@ -1,10 +1,6 @@
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-import math
-import matplotlib.pyplot as plt
-from PIL import Image
-import urllib.request
 from scipy import sparse
 
 #Load dataset

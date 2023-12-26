@@ -8,19 +8,6 @@ matplotlib.use('Agg')  # Set Matplotlib to use the Agg backend
 # Load data
 movies = pd.read_csv('../../cleaned_data/movies_small.csv', usecols=['title', 'genres', 'overview'], sep=',', index_col=False, dtype='unicode')
 
-# Explore the Feature (genres)
-# movies[['title', 'genres', 'overview']].head(5)
-
-# Count the number of occurrences for each genre in the data set
-counts = dict()
-
-for i in movies.index:
-    for g in movies.loc[i, 'genres'].split(' '):
-        if g not in counts:
-            counts[g] = 1
-        else:
-            counts[g] = counts[g] + 1
-
 movies['genres'] = movies['genres'].str.replace(',',' ')
 
 # Term Frequency and Inverse Document Frequency (tf-idf)
