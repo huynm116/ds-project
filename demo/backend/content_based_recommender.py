@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel, cosine_similarity
 from fuzzywuzzy import fuzz
@@ -8,26 +9,8 @@ matplotlib.use('Agg')  # Set Matplotlib to use the Agg backend
 # Load data
 movies = pd.read_csv('../../cleaned_data/processed_movie_data.csv', usecols=['processed_title', 'genres', 'processed_overview'], sep=',', index_col=False, dtype='unicode')
 
-movies['genres'] = movies['genres'].str.replace(',',' ')
-
-# Term Frequency and Inverse Document Frequency (tf-idf)
-movies['genres'] = movies['genres'].str.replace('Sci-Fi','SciFi')
-movies['genres'] = movies['genres'].str.replace('Film-Noir','FilmNoir')
-movies['genres'] = movies['genres'].str.replace('Reality-TV','RealityTV')
-movies['genres'] = movies['genres'].str.replace('Talk-Show','TalkShow')
-
-# Combine 'overview' and 'genres' into a single column
-movies['content'] = movies['processed_overview'] + ' ' + movies['genres'] + ' ' + movies['processed_title']
-movies['content'] = movies['content'].fillna('')
-
-# Create a TF-IDF vectorizer
-tfidf_vector = TfidfVectorizer(stop_words='english')
-
-# Compute the TF-IDF matrix
-tfidf_matrix = tfidf_vector.fit_transform(movies['content'])
-
-# Create the cosine similarity matrix
-sim_matrix = linear_kernel(tfidf_matrix, tfidf_matrix)
+# Import the cosine similarity matrix
+sim_matrix = np.load('../../recommender/sim_matrix.npy')
 print(sim_matrix)
 
 
